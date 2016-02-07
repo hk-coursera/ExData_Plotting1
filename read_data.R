@@ -10,11 +10,15 @@ read_data <- function(filename="household_power_consumption.txt") {
 
   message("reading only 2007-02-01 and 2007-02-02 days...")
   library(sqldf)
-  df <- read.csv.sql(filename, sep=";",
-                     colClasses=c("Date", "character", rep("numeric", times=7)),
+  df <- read.csv.sql(filename, sep = ";",
+                     colClasses = rep("character",9),
                      sql = "select * from file where Date='1/2/2007' OR Date='2/2/2007'",
                      eol = "\n")
   closeAllConnections() # brutal
+  
+  for(colname in names(df)) {
+    df[,colname][df[,colname] %in% c('?', '')] <- NA
+  }
   
   df$datetime <- strptime(paste0(as.Date(df$Date, '%d/%m/%Y'), ' ', df$Time), "%Y-%m-%d %H:%M:%S")
   

@@ -16,12 +16,21 @@ read_data <- function(filename="household_power_consumption.txt") {
                      eol = "\n")
   closeAllConnections() # brutal
   
+  # remove rows with missing values
   for(colname in names(df)) {
     df[,colname][df[,colname] %in% c('?', '')] <- NA
   }
+  df <- na.omit(df)
+
+  # transform values (except time) to numeric
+  for(colname in names(df)[! names(df) %in% c('Date', 'Time')]) {
+    df[,colname] <- as.numeric(df[,colname])
+  }
   
+  # parse time
   df$datetime <- strptime(paste0(as.Date(df$Date, '%d/%m/%Y'), ' ', df$Time), "%Y-%m-%d %H:%M:%S")
   
+  # remove useless columns
   df <- df[, !(names(df) %in% c('Date', 'Time'))]
   
   message("done")
